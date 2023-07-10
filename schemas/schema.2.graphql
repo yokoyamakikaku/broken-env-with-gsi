@@ -1,4 +1,7 @@
-"""ソートキーフィールドの複雑化"""
+"""
+2
+ソートキーフィールドの追加
+"""
 
 type Group @model @auth(rules: [
   { allow: owner, operations: [create, update, delete, read] }
@@ -6,7 +9,7 @@ type Group @model @auth(rules: [
   id: ID!
   name: String!
   createdAt: AWSDateTime! @index(name: "byCreatedAt", queryField: "listGroupsByCreatedAt", sortKeyFields: ["id"])
-  owner: String @auth(rules: [{ allow: owner, operations: [create, read]}])
+  owner: String @auth(rules: [{ allow: owner, operations: [read]}])
 }
 
 type User @model @auth(rules: [
@@ -15,9 +18,9 @@ type User @model @auth(rules: [
   id: ID!
   name: String!
   bornedDate: AWSDate!
-  groupId: String! @index(name: "byGroupId", queryField: "listUsersByGroupId", sortKeyFields: ["id", "bornedDate"])
-  createdAt: AWSDateTime! @index(name: "byCreatedAt", queryField: "listUsersByCreatedAt", sortKeyFields: ["id", "bornedDate"])
-  owner: String @auth(rules: [{ allow: owner, operations: [create, read]}])
+  groupId: String! @index(name: "byGroupId", queryField: "listUsersByGroupId", sortKeyFields: ["id"])
+  createdAt: AWSDateTime! @index(name: "byCreatedAt", queryField: "listUsersByCreatedAt", sortKeyFields: ["id"])
+  owner: String @auth(rules: [{ allow: owner, operations: [read]}])
 }
 
 type BookCategory @model @auth (rules: [
@@ -27,7 +30,7 @@ type BookCategory @model @auth (rules: [
   name: String!
   groupId: String! @index(name: "byGroupId", queryField: "listBookCategoriesByGroupId", sortKeyFields: ["id"])
   createdAt: AWSDateTime! @index(name: "byCreatedAt", queryField: "listBookCategoriesByCreatedAt", sortKeyFields: ["id"])
-  owner: String @auth(rules: [{ allow: owner, operations: [create, read]}])
+  owner: String @auth(rules: [{ allow: owner, operations: [read]}])
 }
 
 type Book @model @auth (rules: [
@@ -38,7 +41,7 @@ type Book @model @auth (rules: [
   categoryId: String!
   groupId: String! @index(name: "byGroupId", queryField: "listBooksByGroupId", sortKeyFields: ["id"])
   createdAt: AWSDateTime! @index(name: "byCreatedAt", queryField: "listBooksByCreatedAt", sortKeyFields: ["id"])
-  owner: String @auth(rules: [{ allow: owner, operations: [create, read]}])
+  owner: String @auth(rules: [{ allow: owner, operations: [read]}])
 }
 
 type Comment @model @auth (rules: [
@@ -48,12 +51,12 @@ type Comment @model @auth (rules: [
   contents: String!
   groupId: String!
     @index(name: "byGroupId", queryField: "listCommentsByGroupId", sortKeyFields: ["id"])
-    @index(name: "byGroupIdWithCreatedAt", queryField: "listCommentsByGroupIdWithCreatedAt", sortKeyFields: ["createdAt", "id"])
+    @index(name: "byGroupIdWithCreatedAt", queryField: "listCommentsByGroupIdWithCreatedAt", sortKeyFields: ["createdAt"])
   userId: String!
     @index(name: "byUserId", queryField: "listCommentsByUserId", sortKeyFields: ["id"])
-    @index(name: "byUserIdWithCreatedAt", queryField: "listCommentsByUserIdWithCreatedAt", sortKeyFields: ["createdAt", "id"])
+    @index(name: "byUserIdWithCreatedAt", queryField: "listCommentsByUserIdWithCreatedAt", sortKeyFields: ["createdAt"])
   createdAt: AWSDateTime! @index(name: "byCreatedAt", queryField: "listCommentsByCreatedAt", sortKeyFields: ["id"])
-  owner: String @auth(rules: [{ allow: owner, operations: [create, read]}])
+  owner: String @auth(rules: [{ allow: owner, operations: [read]}])
 }
 
 type Message @model @auth (rules: [
@@ -62,12 +65,13 @@ type Message @model @auth (rules: [
   id: ID!
   contents: String!
   groupId: String!
-    @index(name: "byGroupIdWithFrom", queryField: "listMessagesByGroupIdWithFrom", sortKeyFields: ["from", "createdAt"])
-    @index(name: "byGroupIdWithTo", queryField: "listMessagesByGroupIdWithTo", sortKeyFields: ["to", "createdAt"])
-  from: String! @index(name: "byFrom", queryField: "listMessagesByFrom", sortKeyFields: ["id", "createdAt"])
-  to: String! @index(name: "byTo", queryField: "listMessagesByTo", sortKeyFields: ["id", "createdAt"])
+    @index(name: "byGroupId", queryField: "listMessagesByGroupId", sortKeyFields: ["id"])
+    @index(name: "byGroupIdWithFrom", queryField: "listMessagesByGroupIdWithFrom", sortKeyFields: ["from"])
+    @index(name: "byGroupIdWithTo", queryField: "listMessagesByGroupIdWithTo", sortKeyFields: ["to"])
+  from: String! @index(name: "byFrom", queryField: "listMessagesByFrom", sortKeyFields: ["id"])
+  to: String! @index(name: "byTo", queryField: "listMessagesByTo", sortKeyFields: ["id"])
   createdAt: AWSDateTime! @index(name: "byCreatedAt", queryField: "listMessagesByCreatedAt", sortKeyFields: ["id"])
-  owner: String @auth(rules: [{ allow: owner, operations: [create, read]}])
+  owner: String @auth(rules: [{ allow: owner, operations: [read]}])
 }
 
 type Schedule @model @auth (rules: [
@@ -79,7 +83,7 @@ type Schedule @model @auth (rules: [
   finishedAt: AWSDateTime!
   groupId: String! @index(name: "byGroupId", queryField: "listSchedulesByGroupId", sortKeyFields: ["id"])
   createdAt: AWSDateTime! @index(name: "byCreatedAt", queryField: "listSchedulesByCreatedAt", sortKeyFields: ["id"])
-  owner: String @auth(rules: [{ allow: owner, operations: [create, read]}])
+  owner: String @auth(rules: [{ allow: owner, operations: [read]}])
 }
 
 type PostCategory @model @auth (rules: [
@@ -89,7 +93,7 @@ type PostCategory @model @auth (rules: [
   name: String!
   groupId: String! @index(name: "byGroupId", queryField: "listPostCategoriesByGroupId", sortKeyFields: ["id"])
   createdAt: AWSDateTime! @index(name: "byCreatedAt", queryField: "listPostCategoriesByCreatedAt", sortKeyFields: ["id"])
-  owner: String @auth(rules: [{ allow: owner, operations: [create, read]}])
+  owner: String @auth(rules: [{ allow: owner, operations: [read]}])
 }
 
 type Post @model @auth (rules: [
@@ -101,7 +105,7 @@ type Post @model @auth (rules: [
   categoryId: String! @index(name: "byCategoryId", queryField: "listPostsByCategoryId", sortKeyFields: ["id"])
   groupId: String! @index(name: "byGroupId", queryField: "listPostsByGroupId", sortKeyFields: ["id"])
   createdAt: AWSDateTime! @index(name: "byCreatedAt", queryField: "listPostsByCreatedAt", sortKeyFields: ["id"])
-  owner: String @auth(rules: [{ allow: owner, operations: [create, read]}])
+  owner: String @auth(rules: [{ allow: owner, operations: [read]}])
 }
 
 type Todo @model @auth (rules: [
@@ -111,8 +115,9 @@ type Todo @model @auth (rules: [
   title: String!
   done: Boolean!
   groupId: String!
+    @index(name: "byGroupId", queryField: "listTodosByGroupId", sortKeyFields: ["id"])
     @index(name: "byGroupIdWithTitle", queryField: "listTodosByGroupIdWithTitle", sortKeyFields: ["title"])
   createdAt: AWSDateTime!
     @index(name: "byCreatedAt", queryField: "listTodosByCreatedAt", sortKeyFields: ["id"])
-    owner: String @auth(rules: [{ allow: owner, operations: [create, read]}])
+    owner: String @auth(rules: [{ allow: owner, operations: [read]}])
 }

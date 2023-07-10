@@ -269,13 +269,3 @@ S3 から対応するバケットから delpoy-state.json を削除する
 ```
 
 プッシュ後、デプロイが始まる。
-
-## 別のスキーマでローカルからデプロイする
-
-```
-% cp ./schemas/schema.3.graphql ./amplify/backend/api/brokenenvwithgsi/schema.graphql
-```
-
-```
-% amplify push -y
-```

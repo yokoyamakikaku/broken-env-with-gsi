@@ -14,7 +14,6 @@ Amplifyでのデプロイ時にGSIに関するエラーが発生し、再デプ�
 
 ## 関連するイシュー
 
-
 - [Error: Cannot update GSI's properties other than Provisioned Throughput and Contributor Insights Specification. You can create a new GSI with a different name.](https://github.com/aws-amplify/amplify-category-api/issues/774)
 - [Amplify push got error "Message: Resource is not in the state stackUpdateComplete"](https://github.com/aws-amplify/amplify-category-api/issues/92)
 
@@ -37,6 +36,8 @@ Amplifyでのデプロイ時にGSIに関するエラーが発生し、再デプ�
 v18.16.0
 % npm -v
 9.5.1
+% amplify -v
+12.1.1
 ```
 
 ## 依存パッケージのインストール
@@ -47,27 +48,148 @@ v18.16.0
 
 ## Amplify プロジェクトの作成
 
-既存の Amplify に関するディレクトリを削除し、新たなプロジェクトを作成する。
-認証とAPIを追加する。認証は GraphQL を使う。
+```
+ % amplify init
+Note: It is recommended to run this command from the root of your app directory
+? Enter a name for the project brokenenvwithgsi
+The following configuration will be applied:
+
+Project information
+| Name: brokenenvwithgsi
+| Environment: dev
+| Default editor: Visual Studio Code
+| App type: javascript
+| Javascript framework: react
+| Source Directory Path: src
+| Distribution Directory Path: build
+| Build Command: npm run-script build
+| Start Command: npm run-script start
+
+? Initialize the project with the above configuration? Yes
+Using default provider  awscloudformation
+? Select the authentication method you want to use: AWS profile
+
+For more information on AWS Profiles, see:
+https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html
+
+? Please choose the profile you want to use yokoyama-t@mococo
+Adding backend environment dev to AWS Amplify app: dl3tvujn21ots
+
+Deployment completed.
+Deploying root stack brokenenvwithgsi [ ---------------------------------------- ] 0/4
+	amplify-brokenenvwithgsi-dev-… AWS::CloudFormation::Stack     CREATE_IN_PROGRESS             Mon Jul 10 2023 21:00:13…
+	DeploymentBucket               AWS::S3::Bucket                CREATE_IN_PROGRESS             Mon Jul 10 2023 21:00:16…
+	AuthRole                       AWS::IAM::Role                 CREATE_IN_PROGRESS             Mon Jul 10 2023 21:00:17…
+	UnauthRole                     AWS::IAM::Role                 CREATE_IN_PROGRESS             Mon Jul 10 2023 21:00:17…
+
+✔ Help improve Amplify CLI by sharing non sensitive configurations on failures (y/N) · yes
+Deployment state saved successfully.
+✔ Initialized provider successfully.
+✅ Initialized your environment successfully.
+
+Your project has been successfully initialized and connected to the cloud!
+
+Some next steps:
+"amplify status" will show you what you've added already and if it's locally configured or deployed
+"amplify add <category>" will allow you to add features like user login or a backend API
+"amplify push" will build all your local backend resources and provision it in the cloud
+"amplify console" to open the Amplify Console and view your project status
+"amplify publish" will build all your local backend and frontend resources (if you have hosting category added) and provision it in the cloud
+
+Pro tip:
+Try "amplify add api" to create a backend API and then "amplify push" to deploy everything
+```
+
+### 認証の追加
 
 ```
-% rm -rf amplify
-% amplify init
 % amplify add auth
+Using service: Cognito, provided by: awscloudformation
+
+ The current configured provider is Amazon Cognito.
+
+ Do you want to use the default authentication and security configuration? Default configuration
+ Warning: you will not be able to edit these selections.
+ How do you want users to be able to sign in? Email
+ Do you want to configure advanced settings? No, I am done.
+✅ Successfully added auth resource [app-name] locally
+
+✅ Some next steps:
+"amplify push" will build all your local backend resources and provision it in the cloud
+"amplify publish" will build all your local backend and frontend resources (if you have hosting category added) and provision it in the cloud
+```
+
+### APIの追加
+
+```
+% amplify add auth
+Using service: Cognito, provided by: awscloudformation
+
+ The current configured provider is Amazon Cognito.
+
+ Do you want to use the default authentication and security configuration? Default configuration
+ Warning: you will not be able to edit these selections.
+ How do you want users to be able to sign in? Email
+ Do you want to configure advanced settings? No, I am done.
+✅ Successfully added auth resource [app name] locally
+
+✅ Some next steps:
+"amplify push" will build all your local backend resources and provision it in the cloud
+"amplify publish" will build all your local backend and frontend resources (if you have hosting category added) and provision it in the cloud
+
+broken-env-with-gsi % amplify push -y
+broken-env-with-gsi % amplify add api
+? Select from one of the below mentioned services: GraphQL
+? Here is the GraphQL API that we will create. Select a setting to edit or continue Authorization modes: API key (default, expiration time: 7 days from now)
+? Choose the default authorization type for the API Amazon Cognito User Pool
+Use a Cognito user pool configured as a part of this project.
+? Configure additional auth types? No
+? Here is the GraphQL API that we will create. Select a setting to edit or continue Continue
+? Choose a schema template: Blank Schema
+✅ GraphQL schema compiled successfully.
+
+Edit your schema at /path/to/project/amplify/backend/api/brokenenvwithgsi/schema.graphql or place .graphql files in a directory at /path/to/project/amplify/backend/api/brokenenvwithgsi/schema
+✔ Do you want to edit the schema now? (Y/n) · yes
+Edit the file in your editor: /path/to/project/amplify/backend/api/brokenenvwithgsi/schema.graphql
+✅ Successfully added resource brokenenvwithgsi locally
+
+✅ Some next steps:
+"amplify push" will build all your local backend resources and provision it in the cloud
+"amplify publish" will build all your local backend and frontend resources (if you have hosting category added) and provision it in the cloud
+```
+
+### スキーマのコピー
+
+スキーマをコピーする
+
+```
+% cp ./schemas/schema.0.graphql ./amplify/backend/api/brokenenvwithgsi/schema.graphql
+```
+
+## CLIでのデプロイ
+
+```
 % amplify push -y
-% amplify add api
-% amplify push -y
+```
+
+## リモートリポジトリへのプッシュ
+
+CI/CDからのデプロイのためにリモートリポジトリを準備し、プッシュする。
+
+```
+% git add .
+% git commit -m 'init amplify project'
+% git add remote origin https://github.com/OWNER/REPOSITORY.git
+% git push -u origin main
 ```
 
 ## リポジトリの接続
 
 GitHub などのリポジトリホスティングサービスにリポジトリをアップロードして連携する。
 リポジトリを接続して設定し、対象のブランチに変更があった時にデプロイするようにする。
-ブランチの接続に関しては公式ドキュメントを参照されたい。
 
-## スキーマの設定
+リポジトリを接続にデプロイする。
 
-`/schemas/schema.0.graphql` を `/amplify/backend/api/[appName]/schema.graphql` にコピーしデプロイする。
 
 ##　データの作成
 
@@ -92,86 +214,68 @@ GitHub などのリポジトリホスティングサービスにリポジトリ�
 ? 作成する作業の数を入力してください 1000
 ```
 
-##　スキーマの変更
-
-`/schemas/schema.2.graphql` を `/amplify/backend/api/[appName]/schema.graphql` にコピーしデプロイする。
-
-この時にタイムアウトが発生する。
-
-以下のようなログが出ることがある。
+## スキーマの更新と自動デプロイからのデプロイ
 
 ```
-                                 # Starting phase: build
-2023-06-27T11:20:43.907Z [INFO]: [0mAmplify AppID found: d2y19gw9w63o6p. Amplify App name is: brokenenvwithgsi[0m
-2023-06-27T11:20:43.964Z [INFO]: [0mBackend environment main found in Amplify Console app: brokenenvwithgsi[0m
-2023-06-27T11:20:44.818Z [WARNING]: - Fetching updates to backend environment: main from the cloud.
-2023-06-27T11:20:45.583Z [WARNING]: - Building resource api/brokenenvwithgsi
-2023-06-27T11:20:47.616Z [INFO]: ⚠️ WARNING: owners may reassign ownership for the following model(s) and role(s): Group: [owner], User: [owner], BookCategory: [owner], Book: [owner], Comment: [owner], Message: [owner], Schedule: [owner], PostCategory: [owner], Post: [owner], Todo: [owner]. If this is not intentional, you may want to apply field-level authorization rules to these fields. To read more: https://docs.amplify.aws/cli/graphql/authorization-rules/#per-user--owner-based-data-access.
-2023-06-27T11:20:47.883Z [INFO]: ✅ GraphQL schema compiled successfully.
-                                 Edit your schema at /codebuild/output/src369714442/src/broken-env-with-gsi/amplify/backend/api/brokenenvwithgsi/schema.graphql or place .graphql files in a directory at /codebuild/output/src369714442/src/broken-env-with-gsi/amplify/backend/api/brokenenvwithgsi/schema
-2023-06-27T11:20:47.884Z [WARNING]: - Building resource auth/brokenenvwithgsibc0e92fd
-2023-06-27T11:20:47.927Z [WARNING]: ✔ Successfully pulled backend environment main from the cloud.
-2023-06-27T11:20:47.965Z [INFO]: ✅
-2023-06-27T11:20:51.148Z [INFO]: [33mNote: It is recommended to run this command from the root of your app directory[39m
-2023-06-27T11:20:51.303Z [WARNING]: - Initializing your environment: main
-2023-06-27T11:20:52.170Z [WARNING]: - Building resource api/brokenenvwithgsi
-2023-06-27T11:20:53.968Z [INFO]: ⚠️ WARNING: owners may reassign ownership for the following model(s) and role(s): Group: [owner], User: [owner], BookCategory: [owner], Book: [owner], Comment: [owner], Message: [owner], Schedule: [owner], PostCategory: [owner], Post: [owner], Todo: [owner]. If this is not intentional, you may want to apply field-level authorization rules to these fields. To read more: https://docs.amplify.aws/cli/graphql/authorization-rules/#per-user--owner-based-data-access.
-2023-06-27T11:20:54.270Z [INFO]: ✅ GraphQL schema compiled successfully.
-                                 Edit your schema at /codebuild/output/src369714442/src/broken-env-with-gsi/amplify/backend/api/brokenenvwithgsi/schema.graphql or place .graphql files in a directory at /codebuild/output/src369714442/src/broken-env-with-gsi/amplify/backend/api/brokenenvwithgsi/schema
-2023-06-27T11:20:54.271Z [WARNING]: - Building resource auth/brokenenvwithgsibc0e92fd
-2023-06-27T11:20:54.313Z [WARNING]: ✔ Initialized provider successfully.
-2023-06-27T11:20:54.681Z [WARNING]: ✖ There was an error initializing your environment.
-2023-06-27T11:20:54.682Z [INFO]: 🛑 Cannot iteratively rollback as the following step does not contain a previousMetaKey: {"status":"DEPLOYING"}
-                                 Learn more at: https://docs.amplify.aws/cli/project/troubleshooting/
-2023-06-27T11:20:54.699Z [INFO]:
-2023-06-27T11:20:54.699Z [INFO]: Session Identifier: e5781fc3-6e96-4387-bc8f-188dcaed85ce
-2023-06-27T11:20:54.699Z [WARNING]: - Creating Zip
-2023-06-27T11:20:54.715Z [INFO]: ✅ Report saved: /tmp/brokenenvwithgsi/report-1687864854702.zip
-2023-06-27T11:20:54.716Z [INFO]:
-2023-06-27T11:20:54.716Z [WARNING]: - Sending zip
-2023-06-27T11:20:56.310Z [WARNING]: ✔ Done
-2023-06-27T11:20:56.310Z [INFO]: Project Identifier: 5dba35224393ff9d7764fe2755d3c8e8
-2023-06-27T11:20:56.332Z [ERROR]: !!! Build failed
-2023-06-27T11:20:56.332Z [INFO]: Please check the supported SSR features to find if your build failure is related to an unsupported feature: https://docs.aws.amazon.com/amplify/latest/userguide/ssr-Amplify-support.html#supported-unsupported-features. You may also find this troubleshooting guide useful: https://docs.aws.amazon.com/amplify/latest/userguide/troubleshooting-ssr-deployment.html
-2023-06-27T11:20:56.332Z [ERROR]: !!! Non-Zero Exit Code detected
-2023-06-27T11:20:56.333Z [INFO]: # Starting environment caching...
-2023-06-27T11:20:56.333Z [INFO]: # Uploading environment cache artifact...
-2023-06-27T11:20:56.456Z [INFO]: # Uploaded environment cache artifact
-2023-06-27T11:20:56.456Z [INFO]: # Environment caching completed
-Terminating logging...
+% cp ./schemas/schema.1.graphql ./amplify/backend/api/brokenenvwithgsi/schema.graphql
 ```
 
-##　ローカルからのデプロイ
+```
+% git add .
+% git commit -m 'update schema 0 to 1'
+% git push
+```
 
-同じ状態でローカルからデプロイする。ここでも失敗する
+ここでタイムアウトが発生する
+
+##　スキーマの更新とローカルからのデプロイ
+
+スキーマを変更する
+
+```
+% cp ./schemas/schema.1.graphql ./amplify/backend/api/brokenenvwithgsi/schema.graphql
+```
+
+ローカルからデプロイする。デプロイステータスに関するエラーがでる。
 
 ```
 % amplify push -y
 ```
 
-##　再度コンソールからデプロイをする
+###　deploy-state.json の削除
 
-コンソール画面から「このバージョンを再デプロイ」を行う。
+S3 から対応するバケットから delpoy-state.json を削除する
 
-そこで以下のようなエラーが出る。
+以降、デプロイステータスのエラーが出るたびにS3のバケットから削除する。
+
+### 再度デプロイする
+
+スキーマを変更せずにデプロイする。エラーが出る
 
 ```
-2023-06-27T11:38:04.383Z [INFO]: 🛑 The following resources failed to deploy:
-                                 Resource Name: BookTable (AWS::DynamoDB::Table)
-                                 Event Type: update
-                                 Reason: Resource handler returned message: "Cannot perform more than one GSI creation or deletion in a single update" (RequestToken: 2f71b790-fda0-83a5-752a-35db9c619660, HandlerErrorCode: InvalidRequest)
-                                 URL: https://console.aws.amazon.com/cloudformation/home?region=ap-northeast-1#/stacks/arn%3Aaws%3Acloudformation%3Aap-northeast-1%3A693825121436%3Astack%2Famplify-brokenenvwithgsi-main-202440-apibrokenenvwithgsi-ZWFILMZMSSBQ-Book-1HT67HFNB7H3T%2F2f723040-1417-11ee-bf01-06a04fef5983/events
-                                 Resource Name: ScheduleTable (AWS::DynamoDB::Table)
-                                 Event Type: update
-                                 Reason: Resource handler returned message: "Cannot perform more than one GSI creation or deletion in a single update" (RequestToken: fcd1554f-cef0-7293-bc21-cf498fe3e255, HandlerErrorCode: InvalidRequest)
-                                 URL: https://console.aws.amazon.com/cloudformation/home?region=ap-northeast-1#/stacks/arn%3Aaws%3Acloudformation%3Aap-northeast-1%3A693825121436%3Astack%2Famplify-brokenenvwithgsi-main-202440-apibrokenenvwithgsi-ZWFILMZMSSBQ-Schedule-1LFHW0EEQP1PP%2F56df9da0-1487-11ee-b1e1-067eb25769dd/events
-2023-06-27T11:38:04.384Z [INFO]: Resource Name: UserTable (AWS::DynamoDB::Table)
+% amplify push -y
 ```
 
-これエラーを再現できる。
+## 別のスキーマをCI/CDからデプロイする
 
-# 注意
+```
+% cp ./schemas/schema.2.graphql ./amplify/backend/api/brokenenvwithgsi/schema.graphql
+```
 
-エラーの再現に確実性は少ない。
+```
+% git add .
+% git commit -m 'update schema 1 to 2'
+% git push
+```
 
-起きにくい場合は各環境でのデプロイの試みを増やすと再現率が高まる。それでもデプロイできない場合はスキーマを変えてデプロイを繰り返すことで再現率が高まる可能性がある。
+プッシュ後、デプロイが始まる。
+
+## 別のスキーマでローカルからデプロイする
+
+```
+% cp ./schemas/schema.3.graphql ./amplify/backend/api/brokenenvwithgsi/schema.graphql
+```
+
+```
+% amplify push -y
+```
